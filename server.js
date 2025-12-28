@@ -7,15 +7,14 @@ const app = express();
 
 // ✅ CORS configuration
 const allowedOrigins = [
-  "http://localhost:5173", // React dev server
-  "https://destiny-auth-frontend.netlify.app" // Production frontend
+  "http://localhost:5173",
+  "https://destiny-auth-frontend.netlify.app"
 ];
 
 app.use(cors({
-  origin: function(origin, callback) {
-    // allow requests with no origin (Postman, CURL)
+  origin: function (origin, callback) {
     if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
+    if (!allowedOrigins.includes(origin)) {
       return callback(new Error("CORS error: This origin is not allowed"), false);
     }
     return callback(null, true);
@@ -24,14 +23,12 @@ app.use(cors({
   credentials: true
 }));
 
-// Handle preflight requests for all routes
-
 app.use(express.json());
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+// ✅ MongoDB connection (FIXED)
+mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected"))
-  .catch((err) => console.log(err));
+  .catch(err => console.log(err));
 
 // Routes
 const authRoutes = require("./routes/auth");
