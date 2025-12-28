@@ -5,14 +5,22 @@ require("dotenv").config();
 
 const app = express();
 
-// CORS configuration
+// ✅ CORS configuration
 const allowedOrigins = [
-  "http://localhost:5173", // your local React frontend
-  "https://your-frontend-url.vercel.app" // your deployed frontend (replace with actual URL)
+  "http://localhost:5173", // React dev server
+  "https://destiny-auth-frontend.netlify.app" // Production frontend
 ];
 
 app.use(cors({
-  origin: "https://destiny-auth-frontend.netlify.app/",
+  origin: function(origin, callback) {
+    // allow requests with no origin (like Postman)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = `The CORS policy for this site does not allow access from the specified Origin.`;
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   credentials: true
 }));
@@ -20,7 +28,7 @@ app.use(cors({
 app.use(express.json());
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI)
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("MongoDB Connected"))
   .catch((err) => console.log(err));
 
