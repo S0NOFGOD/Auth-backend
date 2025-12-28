@@ -5,32 +5,22 @@ require("dotenv").config();
 
 const app = express();
 
-// ✅ CORS configuration
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://destiny-auth-frontend.netlify.app"
-];
-
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-    if (!allowedOrigins.includes(origin)) {
-      return callback(new Error("CORS error: This origin is not allowed"), false);
-    }
-    return callback(null, true);
-  },
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  origin: [
+    "http://localhost:5173",
+    "https://destiny-auth-frontend.netlify.app"
+  ],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   credentials: true
 }));
 
+app.options("*", cors());
 app.use(express.json());
 
-// ✅ MongoDB connection (FIXED)
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected"))
   .catch(err => console.log(err));
 
-// Routes
 const authRoutes = require("./routes/auth");
 app.use("/api/auth", authRoutes);
 
